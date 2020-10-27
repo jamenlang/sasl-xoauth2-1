@@ -1,4 +1,4 @@
-sasl-xoauth2 (0.9-1ubuntu1~focal1~ppa1) bionic; urgency=low
+sasl-xoauth2 (0.9-1ubuntu1~focal1~ppa1) focal; urgency=low
 
   * Package for Ubuntu 20.04.
 
