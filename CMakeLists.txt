@@ -12,10 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.0.0)
 cmake_policy(VERSION 3.0)
 
-project(sasl-xoauth2 VERSION 0.7 LANGUAGES CXX)
+execute_process(
+  COMMAND head -n 1 ChangeLog
+  COMMAND sed -e "s/.*(//" -e "s/).*//"
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE CHANGELOG_VERSION
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+project(sasl-xoauth2 VERSION ${CHANGELOG_VERSION} LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
@@ -28,6 +35,6 @@ add_subdirectory(src)
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION}")
 set(CPACK_SOURCE_GENERATOR "TGZ")
-set(CPACK_SOURCE_IGNORE_FILES "/build/;/debian/;/output/;/scripts/;/ubuntu-build/;/.git/;.clang-format;~$;${CPACK_SOURCE_IGNORE_FILES}")
+set(CPACK_SOURCE_IGNORE_FILES "/build/;/packaging/;/packaging-build/;/packaging-output/;/packaging-scripts/;/.git/;.clang-format;~$;${CPACK_SOURCE_IGNORE_FILES}")
 
 include(CPack)

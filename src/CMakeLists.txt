@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall -Werror")
 
 find_package(PkgConfig REQUIRED)
-find_package(jsoncpp REQUIRED)
 find_package(CURL REQUIRED)
 
+pkg_check_modules(JSON REQUIRED "jsoncpp")
 pkg_check_modules(SASL REQUIRED "libsasl2")
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
@@ -39,10 +37,13 @@ set(SOURCES
   token_store.h)
 
 set(CONFIG_FILE ${PROJECT_NAME}.conf)
+set(CONFIG_FILE_FULL_PATH ${CMAKE_INSTALL_FULL_SYSCONFDIR}/${CONFIG_FILE})
 
+link_directories(${JSON_LIBRARY_DIRS})
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${CONFIG_FILE})
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${CURL_INCLUDE_DIRS} jsoncpp_lib ${SASL_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES} jsoncpp_lib)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${CURL_INCLUDE_DIRS} ${SASL_INCLUDE_DIRS} ${JSON_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES} ${JSON_LIBRARIES})
+target_compile_definitions(${PROJECT_NAME} PRIVATE CONFIG_FILE_FULL_PATH="${CONFIG_FILE_FULL_PATH}")
 
 install(
   TARGETS ${PROJECT_NAME}

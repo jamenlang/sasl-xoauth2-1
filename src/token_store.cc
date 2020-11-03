@@ -57,7 +57,7 @@ std::string GetTempSuffix() {
     Log *log, const std::string &path) {
   std::unique_ptr<TokenStore> store(new TokenStore(log, path));
   if (store->Read() != SASL_OK) return {};
-  return std::move(store);
+  return store;
 }
 
 int TokenStore::GetAccessToken(std::string *token) {
@@ -84,7 +84,7 @@ int TokenStore::Refresh() {
       "&client_secret=" + Config::Get()->client_secret() +
       "&grant_type=refresh_token&refresh_token=" + refresh_;
   std::string response;
-  int response_code = 0;
+  long response_code = 0;
   log_->Write("TokenStore::Refresh: request: %s", request.c_str());
 
   std::string http_error;
@@ -139,7 +139,8 @@ int TokenStore::Read() {
 
     std::ifstream file(path_);
     if (!file.good()) {
-      log_->Write("TokenStore::Read: failed to open file %s", path_.c_str());
+      log_->Write("TokenStore::Read: failed to open file %s: %s", path_.c_str(),
+                  strerror(errno));
       return SASL_FAIL;
     }
 
@@ -176,8 +177,8 @@ int TokenStore::Write() {
 
     std::ofstream file(new_path);
     if (!file.good()) {
-      log_->Write("TokenStore::Write: failed to open file %s for writing",
-                  new_path.c_str());
+      log_->Write("TokenStore::Write: failed to open file %s for writing: %s",
+                  new_path.c_str(), strerror(errno));
       return SASL_FAIL;
     }
     file << root;
